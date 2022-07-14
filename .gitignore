@@ -1,4 +1,6 @@
 *.csv
 plot_output
+plot_output_discord
 __pycache__
 tempCodeRunnerFile.py
+.env
