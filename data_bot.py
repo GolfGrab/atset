@@ -1,3 +1,4 @@
+from plot import plot_supertrend
 import pandas as pd
 import yfinance as yf
 import json
@@ -35,12 +36,19 @@ for i, symbol in enumerate(watch_list):
     try:
         df = pd.read_csv(os.path.join(
             file_path, STOCK_DATA_DIR, f"{symbol}.csv"))
-        df = wrap(df)
+
         df_ta = wrap(df)
-        df_ta.init_all()
+        df_ta["close_20_ema"]
+        df_ta["supertrend"]
+        df_ta["close_200_ema"]
+        df_ta["stochrsi"]
         df_ta.to_csv(os.path.join(
             file_path, STOCK_DATA_DIR_WITH_INDICATOR_DIR, f"{symbol}.csv"))
         print(f"{symbol} done {i+1}/{len(watch_list)}")
     except Exception as e:
         print(f"{symbol} error {e}")
         continue
+
+# test plot
+
+plot_supertrend(symbol, df_ta)

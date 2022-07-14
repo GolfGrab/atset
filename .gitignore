@@ -1,2 +1,4 @@
 *.csv
-images/*
+plot_output
+__pycache__
+tempCodeRunnerFile.py
