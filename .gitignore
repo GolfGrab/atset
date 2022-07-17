@@ -4,3 +4,7 @@ plot_output_discord
 __pycache__
 tempCodeRunnerFile.py
 .env
+*.png
+*.jpg
+*.jpeg
+*.webp
