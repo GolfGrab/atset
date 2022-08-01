@@ -1,3 +1,4 @@
+import json
 import nextcord
 from nextcord.ext import commands
 
@@ -13,6 +14,8 @@ import plotly.graph_objects as go
 import datetime as dt
 import pandas_ta as ta
 from plotly.subplots import make_subplots
+from tradingview_ta import TA_Handler, Interval
+
 
 # load_dotenv reads from a file called .env in the same directory as the python files which should roughly look like BOT_TOKEN="1234567890"
 load_dotenv()
@@ -283,5 +286,54 @@ website : {website}
     except Exception as e:
         print(e)
         await ctx.send(f"Error : {e}")
+
+
+@bot.command()
+async def get_suggestion_list(ctx, watch_list_name: str, suggest_type: str = "buy"):
+    """Shows suggestion list for a stock."""
+    if suggest_type == "all":
+        rec_type = ["STRONG_BUY", "BUY", "STRONG_SELL", "SELL", "NEUTRAL"]
+    elif suggest_type == "buy":
+        rec_type = ["STRONG_BUY", "BUY"]
+    elif suggest_type == "sell":
+        rec_type = ["STRONG_SELL", "SELL"]
+    else:
+        await ctx.send(f"Error : {suggest_type} is not a valid type, please use 'buy' or 'sell' or 'all'")
+        return
+    await ctx.send(f"getting suggestion for {watch_list_name}")
+    try:
+        suggestion_list = []
+        watch_list = json.load(
+            open(os.path.join(os.getcwd(), "watch_list", f"{watch_list_name}.json")))
+        for i, symbol in enumerate(watch_list):
+            if i % 10 == 0:
+                await ctx.send(f"loading .... {i}/{len(watch_list)}")
+            handler = TA_Handler(
+                symbol=symbol,
+                exchange="SET",
+                screener="thailand",
+                interval=Interval.INTERVAL_1_DAY,
+                timeout=None
+            )
+            data = dict()
+            data["symbol"] = symbol
+            data.update(handler.get_analysis().summary)
+            suggestion_list.append(data)
+        suggestion_list.sort(key=lambda x: x["BUY"], reverse=True)
+        print(*suggestion_list, sep="\n")
+
+        for rec in rec_type:
+            await ctx.send(f">>>>>>>>>>>>>>>>>>>>>>>>>>   {rec}   <<<<<<<<<<<<<<<<<<<<<<<<<<")
+            for item in suggestion_list:
+                if item["RECOMMENDATION"] == rec:
+                    message = f"    {item['symbol']}           BUY:{item['BUY']} SELL:{item['SELL']} NEUTRAL:{item['NEUTRAL']}"
+                    await ctx.send(message)
+                    if (rec == "STRONG_BUY" or rec == "STRONG_SELL"):
+                        await get_graph_macd_ema(ctx, f"{item['symbol']}.BK")
+            await ctx.send(f">>>>>>>>>>>>>>>>>>>>>>>>>>   END OF {rec}   <<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n")
+    except Exception as e:
+        print(e)
+        await ctx.send(f"Error : {e}")
+
 
 bot.run(token)
