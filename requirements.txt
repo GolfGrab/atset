@@ -1,0 +1,8 @@
+nextcord==2.0.0
+pandas==1.4.3
+pandas_ta==0.3.14b0
+plotly==5.9.0
+python-dotenv==0.20.0
+stockstats==0.4.1
+tradingview_ta==3.2.10
+yfinance==0.1.72
